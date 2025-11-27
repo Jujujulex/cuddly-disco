@@ -19,6 +19,18 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Cuddly Disco",
   description: "Onchain Music Platform",
+  manifest: "/manifest.json",
+  themeColor: "#8b5cf6",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Cuddly Disco",
+  },
 };
 
 export default async function RootLayout({
