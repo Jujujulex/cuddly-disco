@@ -1,11 +1,14 @@
 'use client'
 
+import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import ConnectButton from '@/components/ConnectButton';
 import AudioPlayer from '@/components/AudioPlayer';
+import { SkeletonGrid } from '@/components/Skeleton';
 
 export default function ProfilePage() {
     const { address, isConnected } = useAccount();
+    const [isLoading] = useState(false);
 
     // Mock data - in production, fetch from smart contract
     const mockNFTs = [
@@ -107,7 +110,9 @@ export default function ProfilePage() {
                     {/* NFT Grid */}
                     <div>
                         <h2 className="text-xl font-bold mb-4">Your Music NFTs</h2>
-                        {mockNFTs.length === 0 ? (
+                        {isLoading ? (
+                            <SkeletonGrid count={4} />
+                        ) : mockNFTs.length === 0 ? (
                             <div className="glass rounded-2xl p-12 text-center">
                                 <p className="text-[var(--muted-foreground)] mb-4">
                                     You don't have any music NFTs yet
