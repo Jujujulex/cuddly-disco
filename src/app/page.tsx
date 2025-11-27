@@ -1,4 +1,5 @@
 import ConnectButton from "@/components/ConnectButton";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
@@ -28,41 +29,44 @@ export default function Home() {
           </div>
 
           {/* Main Heading */}
-          <h1 className="text-5xl md:text-7xl font-bold leading-tight tracking-tight">
-            <span className="gradient-text">Create, Upload & Mint</span>
-            <br />
-            <span className="text-[var(--foreground)]">Your Music Onchain</span>
+          <h1 className="text-5xl md:text-7xl font-bold gradient-text leading-tight">
+            Create, Upload & Mint Your Music Onchain
           </h1>
 
           {/* Subheading */}
-          <p className="text-lg md:text-xl text-[var(--muted-foreground)] max-w-2xl mx-auto leading-relaxed">
-            The decentralized music platform where artists own their work.
-            Upload your tracks to IPFS, mint them as NFTs, and share them with the world.
+          <p className="text-xl text-[var(--muted-foreground)] max-w-2xl mx-auto">
+            The decentralized platform for artists to upload, mint, and share their music as NFTs
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-            <button className="group relative px-8 py-4 rounded-full bg-gradient-to-r from-[hsl(263,70%,50%)] to-[hsl(280,80%,60%)] text-white font-semibold hover-lift transition-all duration-300">
+            <a
+              href="/upload"
+              className="group relative px-8 py-4 rounded-full bg-gradient-to-r from-[hsl(263,70%,50%)] to-[hsl(280,80%,60%)] text-white font-semibold hover-lift transition-all duration-300"
+            >
               <span className="relative z-10">Start Creating</span>
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[hsl(280,80%,60%)] to-[hsl(330,80%,55%)] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
-            <button className="px-8 py-4 rounded-full glass text-[var(--foreground)] font-semibold hover:bg-[var(--muted)] transition-all duration-300">
+            </a>
+            <a
+              href="/profile"
+              className="px-8 py-4 rounded-full glass text-[var(--foreground)] font-semibold hover:bg-[var(--muted)] transition-all duration-300"
+            >
               Explore Music
-            </button>
+            </a>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-8 pt-12 max-w-2xl mx-auto">
-            <div className="space-y-1">
-              <div className="text-3xl font-bold gradient-text">500+</div>
+          <div className="grid grid-cols-3 gap-8 pt-12">
+            <div>
+              <div className="text-3xl font-bold gradient-text">10K+</div>
               <div className="text-sm text-[var(--muted-foreground)]">Tracks Minted</div>
             </div>
-            <div className="space-y-1">
-              <div className="text-3xl font-bold gradient-text">200+</div>
+            <div>
+              <div className="text-3xl font-bold gradient-text">5K+</div>
               <div className="text-sm text-[var(--muted-foreground)]">Artists</div>
             </div>
-            <div className="space-y-1">
-              <div className="text-3xl font-bold gradient-text">10K+</div>
+            <div>
+              <div className="text-3xl font-bold gradient-text">15K+</div>
               <div className="text-sm text-[var(--muted-foreground)]">Collectors</div>
             </div>
           </div>
@@ -72,6 +76,8 @@ export default function Home() {
         <div className="absolute top-1/4 left-10 w-72 h-72 bg-[hsl(263,70%,50%)] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
         <div className="absolute bottom-1/4 right-10 w-72 h-72 bg-[hsl(330,80%,55%)] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
       </main>
+
+      <Footer />
     </div>
   );
 }
