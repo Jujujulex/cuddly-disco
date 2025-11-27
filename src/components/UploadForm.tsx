@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ipfsStorage, type MusicMetadata } from '@/lib/ipfs';
 import { useAccount } from 'wagmi';
+import { useMintMusic } from '@/hooks/useMintMusic';
+import { useToast } from '@/context/ToastContext';
 
 interface UploadState {
     audioFile: File | null;
@@ -19,6 +21,8 @@ interface UploadState {
 
 export default function UploadForm() {
     const { address, isConnected } = useAccount();
+    const { mint, hash, isPending, isConfirming, isSuccess: isMinted, error: mintError } = useMintMusic();
+    const toast = useToast();
     const [state, setState] = useState<UploadState>({
         audioFile: null,
         coverFile: null,
@@ -34,6 +38,18 @@ export default function UploadForm() {
 
     const [audioDragActive, setAudioDragActive] = useState(false);
     const [coverDragActive, setCoverDragActive] = useState(false);
+
+    useEffect(() => {
+        if (isMinted && hash) {
+            toast.success('NFT minted successfully!');
+        }
+    }, [isMinted, hash, toast]);
+
+    useEffect(() => {
+        if (mintError) {
+            toast.error(mintError.message || 'Failed to mint NFT');
+        }
+    }, [mintError, toast]);
 
     const handleAudioDrag = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -214,8 +230,8 @@ export default function UploadForm() {
                     onDragOver={handleAudioDrag}
                     onDrop={handleAudioDrop}
                     className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all ${audioDragActive
-                            ? 'border-[hsl(280,80%,60%)] bg-[hsl(280,80%,60%)]/10'
-                            : 'border-[var(--border)] hover:border-[var(--muted-foreground)]'
+                        ? 'border-[hsl(280,80%,60%)] bg-[hsl(280,80%,60%)]/10'
+                        : 'border-[var(--border)] hover:border-[var(--muted-foreground)]'
                         }`}
                 >
                     <input
@@ -252,8 +268,8 @@ export default function UploadForm() {
                     onDragOver={handleCoverDrag}
                     onDrop={handleCoverDrop}
                     className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all ${coverDragActive
-                            ? 'border-[hsl(280,80%,60%)] bg-[hsl(280,80%,60%)]/10'
-                            : 'border-[var(--border)] hover:border-[var(--muted-foreground)]'
+                        ? 'border-[hsl(280,80%,60%)] bg-[hsl(280,80%,60%)]/10'
+                        : 'border-[var(--border)] hover:border-[var(--muted-foreground)]'
                         }`}
                 >
                     <input
