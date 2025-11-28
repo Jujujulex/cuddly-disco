@@ -7,6 +7,7 @@ import { ToastProvider } from "@/context/ToastContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AudioProvider } from "@/context/AudioContext";
 import InstallPrompt from "@/components/InstallPrompt";
+import PersistentPlayer from "@/components/PersistentPlayer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
