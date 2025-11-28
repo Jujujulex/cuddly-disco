@@ -50,8 +50,10 @@ export default async function RootLayout({
         <ErrorBoundary>
           <ContextProvider cookies={cookies}>
             <ToastProvider>
-              {children}
-              <InstallPrompt />
+              <AudioProvider>
+                {children}
+                <InstallPrompt />
+              </AudioProvider>
             </ToastProvider>
           </ContextProvider>
         </ErrorBoundary>
