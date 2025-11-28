@@ -1,13 +1,16 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAccount } from 'wagmi';
 import ConnectButton from '@/components/ConnectButton';
 import NFTCard from '@/components/NFTCard';
 import SearchBar from '@/components/SearchBar';
+import FilterPanel, { type FilterState } from '@/components/FilterPanel';
+import TrendingSection from '@/components/TrendingSection';
 import { SkeletonGrid } from '@/components/Skeleton';
 import { useUserNFTs } from '@/hooks/useUserNFTs';
 import { batchFetchNFTData } from '@/lib/nft';
+import { sortTokens, filterByGenres, getTrendingTokens } from '@/lib/explore';
 import type { TokenData } from '@/types/metadata';
 
 export default function ExplorePage() {
@@ -16,6 +19,7 @@ export default function ExplorePage() {
     const [tokens, setTokens] = useState<TokenData[]>([]);
     const [filteredTokens, setFilteredTokens] = useState<TokenData[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [filterState, setFilterState] = useState<FilterState>({ sortBy: 'newest', genres: [] });
     const [isLoadingMetadata, setIsLoadingMetadata] = useState(false);
 
     // Fetch metadata for tokens
@@ -41,29 +45,39 @@ export default function ExplorePage() {
         loadMetadata();
     }, [rawTokens]);
 
-    // Filter tokens based on search query
+    // Filter and sort tokens
     useEffect(() => {
-        if (!searchQuery.trim()) {
-            setFilteredTokens(tokens);
-            return;
+        let result = [...tokens];
+
+        // 1. Search
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            result = result.filter((token) => {
+                const title = token.metadata?.name?.toLowerCase() || '';
+                const artist = token.metadata?.artist?.toLowerCase() || '';
+                return title.includes(query) || artist.includes(query);
+            });
         }
 
-        const query = searchQuery.toLowerCase();
-        const filtered = tokens.filter((token) => {
-            const title = token.metadata?.name?.toLowerCase() || '';
-            const artist = token.metadata?.artist?.toLowerCase() || '';
-            return title.includes(query) || artist.includes(query);
-        });
+        // 2. Filter by Genre
+        result = filterByGenres(result, filterState.genres);
 
-        setFilteredTokens(filtered);
-    }, [tokens, searchQuery]);
+        // 3. Sort
+        result = sortTokens(result, filterState.sortBy);
+
+        setFilteredTokens(result);
+    }, [tokens, searchQuery, filterState]);
 
     const handleSearch = useCallback((query: string) => {
         setSearchQuery(query);
     }, []);
 
+    const handleFilterChange = useCallback((newFilters: FilterState) => {
+        setFilterState(newFilters);
+    }, []);
+
+    const trendingTokens = useMemo(() => getTrendingTokens(tokens), [tokens]);
     const isLoading = isFetchingTokens || isLoadingMetadata;
-    const displayTokens = filteredTokens;
 
     return (
         <div className="relative min-h-screen overflow-hidden bg-[var(--background)]">
@@ -77,6 +91,9 @@ export default function ExplorePage() {
                     <span className="text-xl font-bold gradient-text">Cuddly Disco</span>
                 </a>
                 <div className="flex items-center gap-4">
+                    <a href="/explore" className="text-sm font-medium text-[hsl(280,80%,60%)] transition-colors">
+                        Explore
+                    </a>
                     <a href="/upload" className="text-sm font-medium hover:text-[hsl(280,80%,60%)] transition-colors">
                         Upload
                     </a>
@@ -99,81 +116,77 @@ export default function ExplorePage() {
                     </p>
                 </div>
 
-                {/* Stats Bar */}
-                <div className="glass rounded-2xl p-6 mb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center">
-                        <div className="text-2xl font-bold gradient-text">{tokens.length}</div>
-                        <div className="text-sm text-[var(--muted-foreground)]">Total Tracks</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-2xl font-bold gradient-text">
-                            {new Set(tokens.map(t => t.metadata?.artist).filter(Boolean)).size}
-                        </div>
-                        <div className="text-sm text-[var(--muted-foreground)]">Artists</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-2xl font-bold gradient-text">24h</div>
-                        <div className="text-sm text-[var(--muted-foreground)]">Active</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-2xl font-bold gradient-text">Live</div>
-                        <div className="text-sm text-[var(--muted-foreground)]">Status</div>
-                    </div>
-                </div>
-
-                {/* Search Bar */}
-                <div className="mb-8">
-                    <SearchBar onSearch={handleSearch} />
-                    {searchQuery && (
-                        <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-                            Found {displayTokens.length} result{displayTokens.length !== 1 ? 's' : ''} for "{searchQuery}"
-                        </p>
-                    )}
-                </div>
-
-                {/* NFT Grid */}
-                {!isConnected ? (
-                    <div className="glass rounded-2xl p-12 text-center">
-                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-[hsl(263,70%,50%)] to-[hsl(280,80%,60%)] flex items-center justify-center">
-                            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">Connect Your Wallet</h3>
-                        <p className="text-[var(--muted-foreground)] mb-6">
-                            Connect your wallet to explore music NFTs
-                        </p>
-                        <ConnectButton />
-                    </div>
-                ) : isLoading ? (
-                    <SkeletonGrid count={6} />
-                ) : tokens.length === 0 ? (
-                    <div className="glass rounded-2xl p-12 text-center">
-                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--muted)] flex items-center justify-center">
-                            <svg className="w-8 h-8 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                            </svg>
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">No Music NFTs Yet</h3>
-                        <p className="text-[var(--muted-foreground)] mb-6">
-                            Be the first to mint a music NFT on this platform
-                        </p>
-                        <a
-                            href="/upload"
-                            className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-[hsl(263,70%,50%)] to-[hsl(280,80%,60%)] text-white font-semibold hover-lift"
-                        >
-                            Upload Your Music
-                        </a>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {displayTokens.map((token) => (
-                            <div key={token.tokenId.toString()} className="animate-fade-in">
-                                <NFTCard tokenData={token} />
-                            </div>
-                        ))}
-                    </div>
+                {/* Trending Section */}
+                {!isLoading && trendingTokens.length > 0 && (
+                    <TrendingSection tokens={trendingTokens} title="Trending Now" />
                 )}
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    {/* Sidebar Filters */}
+                    <div className="md:col-span-1">
+                        <FilterPanel onFilterChange={handleFilterChange} />
+                    </div>
+
+                    {/* Main Grid Area */}
+                    <div className="md:col-span-3 space-y-6">
+                        {/* Search Bar */}
+                        <div>
+                            <SearchBar onSearch={handleSearch} />
+                            {(searchQuery || filterState.genres.length > 0) && (
+                                <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+                                    Found {filteredTokens.length} result{filteredTokens.length !== 1 ? 's' : ''}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* NFT Grid */}
+                        {!isConnected ? (
+                            <div className="glass rounded-2xl p-12 text-center">
+                                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-[hsl(263,70%,50%)] to-[hsl(280,80%,60%)] flex items-center justify-center">
+                                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-bold mb-2">Connect Your Wallet</h3>
+                                <p className="text-[var(--muted-foreground)] mb-6">
+                                    Connect your wallet to explore music NFTs
+                                </p>
+                                <ConnectButton />
+                            </div>
+                        ) : isLoading ? (
+                            <SkeletonGrid count={6} />
+                        ) : filteredTokens.length === 0 ? (
+                            <div className="glass rounded-2xl p-12 text-center">
+                                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--muted)] flex items-center justify-center">
+                                    <svg className="w-8 h-8 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-bold mb-2">No Matches Found</h3>
+                                <p className="text-[var(--muted-foreground)] mb-6">
+                                    Try adjusting your filters or search query
+                                </p>
+                                <button
+                                    onClick={() => {
+                                        setSearchQuery('');
+                                        setFilterState({ sortBy: 'newest', genres: [] });
+                                    }}
+                                    className="text-[hsl(280,80%,60%)] hover:underline"
+                                >
+                                    Clear all filters
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {filteredTokens.map((token) => (
+                                    <div key={token.tokenId.toString()} className="animate-fade-in">
+                                        <NFTCard tokenData={token} />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
             </main>
         </div>
     );
