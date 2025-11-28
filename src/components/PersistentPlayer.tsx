@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import AudioVisualizer from './AudioVisualizer';
+import PlaylistDrawer from './PlaylistDrawer';
 
 export default function PersistentPlayer() {
     const {
@@ -24,6 +25,7 @@ export default function PersistentPlayer() {
     } = useAudioPlayer();
 
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isPlaylistOpen, setIsPlaylistOpen] = useState(false);
     const progressBarRef = useRef<HTMLDivElement>(null);
 
     if (!currentTrack) return null;
