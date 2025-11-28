@@ -1,7 +1,5 @@
-'use client'
-
 import { useState } from 'react';
-import AudioPlayer from './AudioPlayer';
+import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import NFTActions from './NFTActions';
 import { getAudioUrl, getImageUrl, formatTokenId } from '@/lib/nft';
 import type { TokenData } from '@/types/metadata';
@@ -13,6 +11,7 @@ interface NFTCardProps {
 
 export default function NFTCard({ tokenData, chainId }: NFTCardProps) {
     const [imageError, setImageError] = useState(false);
+    const { playTrack, togglePlay, currentTrack, isPlaying } = useAudioPlayer();
     const { metadata, tokenId } = tokenData;
 
     if (!metadata) {
@@ -27,20 +26,48 @@ export default function NFTCard({ tokenData, chainId }: NFTCardProps) {
 
     const audioUrl = getAudioUrl(metadata);
     const imageUrl = getImageUrl(metadata);
+    const isCurrentTrack = currentTrack?.tokenId === tokenId;
+    const isTrackPlaying = isCurrentTrack && isPlaying;
+
+    const handlePlay = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (isCurrentTrack) {
+            togglePlay();
+        } else {
+            playTrack(tokenData);
+        }
+    };
 
     return (
-        <div className="glass rounded-xl overflow-hidden hover-lift transition-all">
+        <div className="glass rounded-xl overflow-hidden hover-lift transition-all group">
             {/* Cover Art */}
             {imageUrl && !imageError && (
-                <div className="relative w-full aspect-square bg-[var(--muted)]">
+                <div className="relative w-full aspect-square bg-[var(--muted)] cursor-pointer" onClick={handlePlay}>
                     <img
                         src={imageUrl}
                         alt={metadata.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
                         onError={() => setImageError(true)}
                     />
-                    <div className="absolute top-2 right-2 px-2 py-1 rounded-full glass text-xs font-mono">
+                    <div className="absolute top-2 right-2 px-2 py-1 rounded-full glass text-xs font-mono z-10">
                         {formatTokenId(tokenId)}
+                    </div>
+
+                    {/* Play Overlay */}
+                    <div className={`absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity ${isTrackPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                        <button
+                            className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:scale-110 transition-transform"
+                        >
+                            {isTrackPlaying ? (
+                                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                            ) : (
+                                <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                                </svg>
+                            )}
+                        </button>
                     </div>
                 </div>
             )}
@@ -50,7 +77,9 @@ export default function NFTCard({ tokenData, chainId }: NFTCardProps) {
                 {/* Title & Artist with Actions */}
                 <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-lg truncate">{metadata.name}</h3>
+                        <h3 className={`font-bold text-lg truncate ${isCurrentTrack ? 'text-[hsl(280,80%,60%)]' : ''}`}>
+                            {metadata.name}
+                        </h3>
                         <p className="text-sm text-[var(--muted-foreground)] truncate">
                             {metadata.artist}
                         </p>
@@ -85,16 +114,6 @@ export default function NFTCard({ tokenData, chainId }: NFTCardProps) {
                             </div>
                         ))}
                     </div>
-                )}
-
-                {/* Audio Player */}
-                {audioUrl && (
-                    <AudioPlayer
-                        audioUrl={audioUrl}
-                        title={metadata.name}
-                        artist={metadata.artist}
-                        coverUrl={imageUrl || undefined}
-                    />
                 )}
 
                 {/* Actions */}
