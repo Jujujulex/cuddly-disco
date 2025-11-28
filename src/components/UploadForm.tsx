@@ -267,7 +267,7 @@ export default function UploadForm() {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="glass rounded-2xl p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="glass rounded-2xl p-4 md:p-8 space-y-4 md:space-y-6">
             {/* Audio File Upload */}
             <div>
                 <label className="block text-sm font-medium mb-2">Audio File *</label>
