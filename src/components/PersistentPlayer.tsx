@@ -67,8 +67,24 @@ export default function PersistentPlayer() {
                         <p className="text-lg text-white/70">{currentTrack.metadata?.artist}</p>
                     </div>
 
+                    import AudioVisualizer from './AudioVisualizer';
+
+                    // ... inside PersistentPlayer component
+
+                    const {
+                        // ... other props
+                        audioRef // Need to expose this from useAudioPlayer
+                    } = useAudioPlayer();
+
+                    // ...
+
                     {/* Mobile Controls */}
                     <div className="w-full space-y-6">
+                        {/* Visualizer */}
+                        <div className="h-16 w-full flex items-center justify-center">
+                            <AudioVisualizer audioRef={audioRef} isPlaying={isPlaying} />
+                        </div>
+
                         <div className="flex items-center justify-between text-sm text-white/50">
                             <span>{formatTime(progress)}</span>
                             <span>{formatTime(duration)}</span>
