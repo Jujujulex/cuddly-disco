@@ -49,7 +49,7 @@ export default function NFTActions({ tokenId, contractAddress, chainId, metadata
                 }
             },
         },
-        {
+        metadataUrl && {
             label: 'Download Metadata',
             icon: (
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,7 +63,7 @@ export default function NFTActions({ tokenId, contractAddress, chainId, metadata
             },
             disabled: !metadataUrl,
         },
-    ];
+    ].filter(Boolean);
 
     return (
         <div className="relative">
@@ -93,8 +93,8 @@ export default function NFTActions({ tokenId, contractAddress, chainId, metadata
                                 }}
                                 disabled={action.disabled}
                                 className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all ${action.disabled
-                                        ? 'opacity-50 cursor-not-allowed'
-                                        : 'hover:bg-[var(--muted)]'
+                                    ? 'opacity-50 cursor-not-allowed'
+                                    : 'hover:bg-[var(--muted)]'
                                     }`}
                             >
                                 {action.icon}
