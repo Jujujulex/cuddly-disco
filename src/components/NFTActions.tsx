@@ -64,7 +64,7 @@ export default function NFTActions({ tokenId, contractAddress, chainId, metadata
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
             ),
-            onClick: () => window.open(metadataUrl, '_blank'),
+            onClick: () => window.open(metadataUrl!, '_blank'),
         }] : []),
     ];
 
