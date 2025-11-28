@@ -23,7 +23,7 @@ export default function NFTActions({ tokenId, contractAddress, chainId, metadata
 
     type Action = {
         label: string;
-        icon: JSX.Element;
+        icon: React.ReactElement;
         onClick: () => void;
         disabled?: boolean;
     };
