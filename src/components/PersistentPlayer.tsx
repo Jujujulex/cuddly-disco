@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import AudioVisualizer from './AudioVisualizer';
 
 export default function PersistentPlayer() {
     const {
@@ -18,7 +19,8 @@ export default function PersistentPlayer() {
         isShuffle,
         toggleShuffle,
         isRepeat,
-        toggleRepeat
+        toggleRepeat,
+        audioRef
     } = useAudioPlayer();
 
     const [isExpanded, setIsExpanded] = useState(false);
@@ -66,17 +68,6 @@ export default function PersistentPlayer() {
                         <h2 className="text-2xl font-bold text-white">{currentTrack.metadata?.name}</h2>
                         <p className="text-lg text-white/70">{currentTrack.metadata?.artist}</p>
                     </div>
-
-                    import AudioVisualizer from './AudioVisualizer';
-
-                    // ... inside PersistentPlayer component
-
-                    const {
-                        // ... other props
-                        audioRef // Need to expose this from useAudioPlayer
-                    } = useAudioPlayer();
-
-                    // ...
 
                     {/* Mobile Controls */}
                     <div className="w-full space-y-6">
