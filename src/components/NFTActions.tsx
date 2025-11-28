@@ -12,13 +12,13 @@ interface NFTActionsProps {
 export default function NFTActions({ tokenId, contractAddress, chainId, metadataUrl }: NFTActionsProps) {
     const [isOpen, setIsOpen] = useState(false);
 
-    const explorerUrl = chainId
+    const explorerUrl = (chainId
         ? {
             1: `https://etherscan.io/token/${contractAddress}?a=${tokenId}`,
             42161: `https://arbiscan.io/token/${contractAddress}?a=${tokenId}`,
             11155111: `https://sepolia.etherscan.io/token/${contractAddress}?a=${tokenId}`,
         }[chainId]
-        : `https://etherscan.io/token/${contractAddress}?a=${tokenId}`;
+        : undefined) || `https://etherscan.io/token/${contractAddress}?a=${tokenId}`;
 
 
     type Action = {
