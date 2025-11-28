@@ -40,8 +40,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersList = await headers();
-  const cookies = headersList.get("cookie");
+  const cookies = (await headers()).get('cookie')
 
   return (
     <html lang="en">
@@ -53,6 +52,7 @@ export default async function RootLayout({
             <ToastProvider>
               <AudioProvider>
                 {children}
+                <PersistentPlayer />
                 <InstallPrompt />
               </AudioProvider>
             </ToastProvider>
