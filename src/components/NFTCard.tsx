@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import AudioPlayer from './AudioPlayer';
+import NFTActions from './NFTActions';
 import { getAudioUrl, getImageUrl, formatTokenId } from '@/lib/nft';
 import type { TokenData } from '@/types/metadata';
 
@@ -46,12 +47,20 @@ export default function NFTCard({ tokenData, chainId }: NFTCardProps) {
 
             {/* Content */}
             <div className="p-4 space-y-4">
-                {/* Title & Artist */}
-                <div>
-                    <h3 className="font-bold text-lg truncate">{metadata.name}</h3>
-                    <p className="text-sm text-[var(--muted-foreground)] truncate">
-                        {metadata.artist}
-                    </p>
+                {/* Title & Artist with Actions */}
+                <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-lg truncate">{metadata.name}</h3>
+                        <p className="text-sm text-[var(--muted-foreground)] truncate">
+                            {metadata.artist}
+                        </p>
+                    </div>
+                    <NFTActions
+                        tokenId={tokenId}
+                        contractAddress={tokenData.owner}
+                        chainId={chainId}
+                        metadataUrl={tokenData.tokenURI}
+                    />
                 </div>
 
                 {/* Description */}
