@@ -20,7 +20,15 @@ export default function NFTActions({ tokenId, contractAddress, chainId, metadata
         }[chainId]
         : `https://etherscan.io/token/${contractAddress}?a=${tokenId}`;
 
-    const actions = [
+
+    type Action = {
+        label: string;
+        icon: JSX.Element;
+        onClick: () => void;
+        disabled?: boolean;
+    };
+
+    const actions: Action[] = [
         {
             label: 'View on Explorer',
             icon: (
@@ -49,21 +57,16 @@ export default function NFTActions({ tokenId, contractAddress, chainId, metadata
                 }
             },
         },
-        metadataUrl && {
+        ...(metadataUrl ? [{
             label: 'Download Metadata',
             icon: (
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
             ),
-            onClick: () => {
-                if (metadataUrl) {
-                    window.open(metadataUrl, '_blank');
-                }
-            },
-            disabled: !metadataUrl,
-        },
-    ].filter(Boolean);
+            onClick: () => window.open(metadataUrl, '_blank'),
+        }] : []),
+    ];
 
     return (
         <div className="relative">
