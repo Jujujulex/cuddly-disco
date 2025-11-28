@@ -226,6 +226,15 @@ export default function PersistentPlayer() {
                             className="w-24 h-1 bg-[var(--muted)] rounded-lg appearance-none cursor-pointer accent-[hsl(280,80%,60%)]"
                         />
                     </div>
+                    {/* Added Playlist Toggle Button */}
+                    <button
+                        onClick={() => setIsPlaylistOpen(true)}
+                        className={`text-[var(--muted-foreground)] hover:text-[var(--foreground)] ${isPlaylistOpen ? 'text-[hsl(280,80%,60%)]' : ''}`}
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
                 </div>
 
                 {/* Play/Pause (Mobile) */}
@@ -243,6 +252,9 @@ export default function PersistentPlayer() {
                     </button>
                 </div>
             </div>
+
+            {/* Playlist Drawer */}
+            <PlaylistDrawer isOpen={isPlaylistOpen} onClose={() => setIsPlaylistOpen(false)} />
         </div>
     );
 }
