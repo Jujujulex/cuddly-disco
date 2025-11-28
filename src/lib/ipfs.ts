@@ -8,15 +8,35 @@ export interface IPFSUploadResult {
 }
 
 export interface MusicMetadata {
+    // Core ERC-721 fields
     name: string;
     description: string;
-    artist: string;
     image: string; // IPFS hash of cover art
+
+    // Music-specific fields
+    artist: string;
     audio: string; // IPFS hash of audio file
+
+    // OpenSea extended fields
+    external_url?: string; // URL to view the item on your site
+    animation_url?: string; // URL to a multimedia attachment (could be audio URL)
+    background_color?: string; // Six-character hexadecimal without #
+
+    // Attributes for OpenSea properties
     attributes?: Array<{
         trait_type: string;
-        value: string;
+        value: string | number;
+        display_type?: 'number' | 'boost_number' | 'boost_percentage' | 'date';
     }>;
+
+    // Additional properties
+    properties?: {
+        artist?: string;
+        duration?: number;
+        genre?: string;
+        bpm?: number;
+        [key: string]: string | number | boolean | undefined;
+    };
 }
 
 class IPFSStorageService {
