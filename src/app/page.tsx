@@ -59,7 +59,15 @@ export default function Home() {
           <div className="grid grid-cols-3 gap-8 pt-12">
             <div>
               <div className="text-3xl font-bold gradient-text">10K+</div>
-              <div className="text-sm text-[var(--muted-foreground)]">Tracks Minted</div>
+              <a href="/explore" className="text-sm font-medium hover:text-[hsl(280,80%,60%)] transition-colors">
+                Explore
+              </a>
+              <a href="/upload" className="text-sm font-medium hover:text-[hsl(280,80%,60%)] transition-colors">
+                Upload
+              </a>
+              <a href="/profile" className="text-sm font-medium hover:text-[hsl(280,80%,60%)] transition-colors">
+                Profile
+              </a><div className="text-sm text-[var(--muted-foreground)]">Tracks Minted</div>
             </div>
             <div>
               <div className="text-3xl font-bold gradient-text">5K+</div>
