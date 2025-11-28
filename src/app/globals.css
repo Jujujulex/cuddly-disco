@@ -4,24 +4,24 @@
   /* Background Colors */
   --background: hsl(240, 10%, 3.9%);
   --foreground: hsl(0, 0%, 98%);
-  
+
   /* Primary Brand Colors - Vibrant Purple/Blue Gradient */
   --primary: hsl(263, 70%, 50%);
   --primary-foreground: hsl(0, 0%, 100%);
-  
+
   /* Accent Colors */
   --accent: hsl(280, 80%, 60%);
   --accent-foreground: hsl(0, 0%, 100%);
-  
+
   /* Muted Colors */
   --muted: hsl(240, 5%, 15%);
   --muted-foreground: hsl(240, 5%, 65%);
-  
+
   /* Border & Card */
   --border: hsl(240, 6%, 20%);
   --card: hsl(240, 8%, 8%);
   --card-foreground: hsl(0, 0%, 95%);
-  
+
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, hsl(263, 70%, 50%) 0%, hsl(280, 80%, 60%) 100%);
   --gradient-accent: linear-gradient(135deg, hsl(330, 80%, 55%) 0%, hsl(280, 80%, 60%) 100%);
@@ -70,6 +70,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -81,6 +82,7 @@ body {
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -88,9 +90,12 @@ body {
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.8;
   }
@@ -100,6 +105,7 @@ body {
   0% {
     background-position: -1000px 0;
   }
+
   100% {
     background-position: 1000px 0;
   }
@@ -138,7 +144,63 @@ body {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+
 .hover-lift:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+
+  /* Larger touch targets */
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Better spacing on mobile */
+  .glass {
+    padding: 1rem;
+  }
+
+  /* Prevent zoom on input focus */
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  /* Safe area insets for notched devices */
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+
+  /* Larger tap targets */
+  .hover-lift {
+    transition: transform 0.1s ease;
+  }
+
+  .hover-lift:active {
+    transform: scale(0.98);
+  }
+
+  /* Remove hover effects on touch devices */
+  .hover\:bg-\[var\(--muted\)\]:hover {
+    background-color: inherit;
+  }
+}
+
+/* Landscape mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .min-h-screen {
+    min-height: 100vh;
+  }
 }
