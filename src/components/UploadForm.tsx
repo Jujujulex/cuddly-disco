@@ -7,6 +7,8 @@ import { useMintMusic } from '@/hooks/useMintMusic';
 import { useToast } from '@/context/ToastContext';
 import { useNetworkCheck } from '@/hooks/useNetworkCheck';
 import NetworkSwitcher from './NetworkSwitcher';
+import MintButton from './MintButton';
+import TransactionStatus from './TransactionStatus';
 
 interface UploadState {
     audioFile: File | null;
@@ -220,6 +222,26 @@ export default function UploadForm() {
                         {state.tokenURI}
                     </div>
                 </div>
+
+                {/* Minting Section */}
+                <div className="space-y-4">
+                    <MintButton
+                        onClick={() => state.tokenURI && mint(state.tokenURI)}
+                        disabled={!state.tokenURI || isPending || isConfirming || isMinted}
+                        isLoading={isPending || isConfirming}
+                    >
+                        {isMinted ? 'Minted Successfully!' : 'Mint as NFT'}
+                    </MintButton>
+
+                    <TransactionStatus
+                        hash={hash}
+                        isPending={isPending}
+                        isConfirming={isConfirming}
+                        isSuccess={isMinted}
+                        error={mintError}
+                    />
+                </div>
+
                 <button
                     onClick={() => setState({
                         audioFile: null,
@@ -233,7 +255,7 @@ export default function UploadForm() {
                         success: false,
                         tokenURI: null,
                     })}
-                    className="w-full px-6 py-3 rounded-full bg-gradient-to-r from-[hsl(263,70%,50%)] to-[hsl(280,80%,60%)] text-white font-semibold hover-lift"
+                    className="w-full px-6 py-3 rounded-full glass text-[var(--foreground)] font-semibold hover:bg-[var(--muted)] transition-all"
                 >
                     Upload Another Track
                 </button>
