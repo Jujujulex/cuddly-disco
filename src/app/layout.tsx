@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import ContextProvider from "@/context";
 import { ToastProvider } from "@/context/ToastContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { AudioProvider } from "@/context/AudioContext";
 import InstallPrompt from "@/components/InstallPrompt";
 
 const geistSans = Geist({
