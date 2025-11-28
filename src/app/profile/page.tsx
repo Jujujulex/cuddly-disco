@@ -1,34 +1,45 @@
 'use client'
 
-import { useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useEffect, useState } from 'react';
+import { useAccount, useChainId } from 'wagmi';
 import ConnectButton from '@/components/ConnectButton';
-import AudioPlayer from '@/components/AudioPlayer';
+import NFTCard from '@/components/NFTCard';
 import { SkeletonGrid } from '@/components/Skeleton';
+import { useUserNFTs } from '@/hooks/useUserNFTs';
+import { batchFetchNFTData } from '@/lib/nft';
+import type { TokenData } from '@/types/metadata';
 
 export default function ProfilePage() {
     const { address, isConnected } = useAccount();
-    const [isLoading] = useState(false);
+    const chainId = useChainId();
+    const { tokens: rawTokens, isLoading: isFetchingTokens, error: fetchError } = useUserNFTs();
+    const [tokens, setTokens] = useState<TokenData[]>([]);
+    const [isLoadingMetadata, setIsLoadingMetadata] = useState(false);
 
-    // Mock data - in production, fetch from smart contract
-    const mockNFTs = [
-        {
-            id: 1,
-            title: 'Summer Vibes',
-            artist: 'DJ Crypto',
-            audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-            coverUrl: 'https://picsum.photos/seed/1/400/400',
-            tokenURI: 'ipfs://QmExample1',
-        },
-        {
-            id: 2,
-            title: 'Midnight Dreams',
-            artist: 'Web3 Producer',
-            audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-            coverUrl: 'https://picsum.photos/seed/2/400/400',
-            tokenURI: 'ipfs://QmExample2',
-        },
-    ];
+    // Fetch metadata for tokens
+    useEffect(() => {
+        async function loadMetadata() {
+            if (rawTokens.length === 0) {
+                setTokens([]);
+                return;
+            }
+
+            setIsLoadingMetadata(true);
+            try {
+                const tokensWithMetadata = await batchFetchNFTData(rawTokens);
+                setTokens(tokensWithMetadata);
+            } catch (error) {
+                console.error('Error loading metadata:', error);
+                setTokens(rawTokens); // Show tokens without metadata
+            } finally {
+                setIsLoadingMetadata(false);
+            }
+        }
+
+        loadMetadata();
+    }, [rawTokens]);
+
+    const isLoading = isFetchingTokens || isLoadingMetadata;
 
     if (!isConnected) {
         return (
@@ -93,7 +104,7 @@ export default function ProfilePage() {
                         </div>
                         <div className="grid grid-cols-3 gap-4 pt-4 border-t border-[var(--border)]">
                             <div>
-                                <div className="text-2xl font-bold gradient-text">{mockNFTs.length}</div>
+                                <div className="text-2xl font-bold gradient-text">{tokens.length}</div>
                                 <div className="text-sm text-[var(--muted-foreground)]">NFTs Owned</div>
                             </div>
                             <div>
@@ -110,9 +121,14 @@ export default function ProfilePage() {
                     {/* NFT Grid */}
                     <div>
                         <h2 className="text-xl font-bold mb-4">Your Music NFTs</h2>
+                        {fetchError && (
+                            <div className="glass rounded-2xl p-6 text-center border border-red-500/50">
+                                <p className="text-red-500">{fetchError.message}</p>
+                            </div>
+                        )}
                         {isLoading ? (
                             <SkeletonGrid count={4} />
-                        ) : mockNFTs.length === 0 ? (
+                        ) : tokens.length === 0 ? (
                             <div className="glass rounded-2xl p-12 text-center">
                                 <p className="text-[var(--muted-foreground)] mb-4">
                                     You don't have any music NFTs yet
@@ -125,15 +141,10 @@ export default function ProfilePage() {
                                 </a>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {mockNFTs.map((nft) => (
-                                    <div key={nft.id} className="animate-fade-in">
-                                        <AudioPlayer
-                                            audioUrl={nft.audioUrl}
-                                            title={nft.title}
-                                            artist={nft.artist}
-                                            coverUrl={nft.coverUrl}
-                                        />
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {tokens.map((token) => (
+                                    <div key={token.tokenId.toString()} className="animate-fade-in">
+                                        <NFTCard tokenData={token} chainId={chainId} />
                                     </div>
                                 ))}
                             </div>
