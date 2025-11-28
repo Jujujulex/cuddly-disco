@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAccount } from 'wagmi';
 import ConnectButton from '@/components/ConnectButton';
 import NFTCard from '@/components/NFTCard';
+import SearchBar from '@/components/SearchBar';
 import { SkeletonGrid } from '@/components/Skeleton';
 import { useUserNFTs } from '@/hooks/useUserNFTs';
 import { batchFetchNFTData } from '@/lib/nft';
@@ -13,6 +14,8 @@ export default function ExplorePage() {
     const { isConnected } = useAccount();
     const { tokens: rawTokens, isLoading: isFetchingTokens } = useUserNFTs();
     const [tokens, setTokens] = useState<TokenData[]>([]);
+    const [filteredTokens, setFilteredTokens] = useState<TokenData[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const [isLoadingMetadata, setIsLoadingMetadata] = useState(false);
 
     // Fetch metadata for tokens
@@ -38,7 +41,29 @@ export default function ExplorePage() {
         loadMetadata();
     }, [rawTokens]);
 
+    // Filter tokens based on search query
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setFilteredTokens(tokens);
+            return;
+        }
+
+        const query = searchQuery.toLowerCase();
+        const filtered = tokens.filter((token) => {
+            const title = token.metadata?.name?.toLowerCase() || '';
+            const artist = token.metadata?.artist?.toLowerCase() || '';
+            return title.includes(query) || artist.includes(query);
+        });
+
+        setFilteredTokens(filtered);
+    }, [tokens, searchQuery]);
+
+    const handleSearch = useCallback((query: string) => {
+        setSearchQuery(query);
+    }, []);
+
     const isLoading = isFetchingTokens || isLoadingMetadata;
+    const displayTokens = filteredTokens;
 
     return (
         <div className="relative min-h-screen overflow-hidden bg-[var(--background)]">
@@ -96,6 +121,16 @@ export default function ExplorePage() {
                     </div>
                 </div>
 
+                {/* Search Bar */}
+                <div className="mb-8">
+                    <SearchBar onSearch={handleSearch} />
+                    {searchQuery && (
+                        <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+                            Found {displayTokens.length} result{displayTokens.length !== 1 ? 's' : ''} for "{searchQuery}"
+                        </p>
+                    )}
+                </div>
+
                 {/* NFT Grid */}
                 {!isConnected ? (
                     <div className="glass rounded-2xl p-12 text-center">
@@ -132,7 +167,7 @@ export default function ExplorePage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {tokens.map((token) => (
+                        {displayTokens.map((token) => (
                             <div key={token.tokenId.toString()} className="animate-fade-in">
                                 <NFTCard tokenData={token} />
                             </div>
