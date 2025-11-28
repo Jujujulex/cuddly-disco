@@ -6,6 +6,7 @@ import { useAccount } from 'wagmi';
 import { useMintMusic } from '@/hooks/useMintMusic';
 import { useToast } from '@/context/ToastContext';
 import { useNetworkCheck } from '@/hooks/useNetworkCheck';
+import { useGasEstimate } from '@/hooks/useGasEstimate';
 import NetworkSwitcher from './NetworkSwitcher';
 import MintButton from './MintButton';
 import TransactionStatus from './TransactionStatus';
@@ -43,6 +44,7 @@ export default function UploadForm() {
 
     const [audioDragActive, setAudioDragActive] = useState(false);
     const [coverDragActive, setCoverDragActive] = useState(false);
+    const { formattedEstimate } = useGasEstimate(state.tokenURI, address);
 
     useEffect(() => {
         if (isMinted && hash) {
@@ -229,6 +231,7 @@ export default function UploadForm() {
                         onClick={() => state.tokenURI && mint(state.tokenURI)}
                         disabled={!state.tokenURI || isPending || isConfirming || isMinted}
                         isLoading={isPending || isConfirming}
+                        gasEstimate={formattedEstimate || undefined}
                     >
                         {isMinted ? 'Minted Successfully!' : 'Mint as NFT'}
                     </MintButton>
