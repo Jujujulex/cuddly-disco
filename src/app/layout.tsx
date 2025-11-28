@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import ContextProvider from "@/context";
 import { ToastProvider } from "@/context/ToastContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import InstallPrompt from "@/components/InstallPrompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,7 +49,10 @@ export default async function RootLayout({
       >
         <ErrorBoundary>
           <ContextProvider cookies={cookies}>
-            <ToastProvider>{children}</ToastProvider>
+            <ToastProvider>
+              {children}
+              <InstallPrompt />
+            </ToastProvider>
           </ContextProvider>
         </ErrorBoundary>
       </body>
