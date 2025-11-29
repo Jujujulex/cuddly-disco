@@ -54,6 +54,7 @@ export default async function RootLayout({
               <AudioProvider>
                 {children}
                 <PersistentPlayer />
+                <NetworkSwitcher />
                 <InstallPrompt />
               </AudioProvider>
             </ToastProvider>
