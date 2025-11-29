@@ -1,21 +1,20 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 import ConnectButton from '@/components/ConnectButton';
 import NFTCard from '@/components/NFTCard';
 import SearchBar from '@/components/SearchBar';
 import FilterPanel, { type FilterState } from '@/components/FilterPanel';
 import TrendingSection from '@/components/TrendingSection';
 import { SkeletonGrid } from '@/components/Skeleton';
-import { useUserNFTs } from '@/hooks/useUserNFTs';
-import { batchFetchNFTData } from '@/lib/nft';
-import { sortTokens, filterByGenres, getTrendingTokens } from '@/lib/explore';
+import { useExploreNFTs } from '@/hooks/useExploreNFTs';
+import { useLikes } from '@/hooks/useLikes';
+import { sortTokens, filterByGenres, getTrendingTokens, filterByLiked } from '@/lib/explore';
 import type { TokenData } from '@/types/metadata';
 
 export default function ExplorePage() {
     const { isConnected } = useAccount();
-    const { tokens: rawTokens, isLoading: isFetchingTokens } = useUserNFTs();
     const chainId = useChainId();
     const { tokens, isLoading, error } = useExploreNFTs();
     const { likedTokenIds } = useLikes();
@@ -137,41 +136,44 @@ export default function ExplorePage() {
                                 </p>
                                 <ConnectButton />
                             </div>
-                        ) : isLoading ? (
-                            <SkeletonGrid count={6} />
+                        ) : displayLoading ? (
+                            <SkeletonGrid />
+                        ) : error ? (
+                            <div className="glass rounded-2xl p-12 text-center">
+                                <h3 className="text-xl font-bold mb-2">Error Loading NFTs</h3>
+                                <p className="text-[var(--muted-foreground)] mb-6">
+                                    There was an issue fetching the NFTs. Please try again later.
+                                </p>
+                            </div>
                         ) : filteredTokens.length === 0 ? (
                             <div className="glass rounded-2xl p-12 text-center">
-                                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--muted)] flex items-center justify-center">
-                                    <svg className="w-8 h-8 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                                    </svg>
-                                </div>
                                 <h3 className="text-xl font-bold mb-2">No Matches Found</h3>
                                 <p className="text-[var(--muted-foreground)] mb-6">
                                     Try adjusting your filters or search query
                                 </p>
                                 <button
                                     onClick={() => {
-                                        setSearchQuery('');
-                                        setFilterState({ sortBy: 'newest', genres: [] });
+                                        const handleClearAll = () => {
+        setSearchQuery('');
+        setFilterState({ sortBy: 'newest', genres: [], showLikedOnly: false });
+    };
                                     }}
                                     className="text-[hsl(280,80%,60%)] hover:underline"
                                 >
                                     Clear all filters
                                 </button>
                             </div>
-                        ) : (
-                            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                                {filteredTokens.map((token) => (
-                                    <div key={token.tokenId.toString()} className="animate-fade-in">
-                                        <NFTCard tokenData={token} />
-                                    </div>
-                                ))}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {filteredTokens.map((token) => (
+                            <div key={token.tokenId.toString()} className="animate-fade-in">
+                                <NFTCard tokenData={token} />
                             </div>
+                        ))}
+                    </div>
                         )}
                     </div>
                 </div>
-            </main>
-        </div>
+            </main >
+        </div >
     );
 }
