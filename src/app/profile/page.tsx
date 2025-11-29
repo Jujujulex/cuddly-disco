@@ -118,37 +118,45 @@ export default function ProfilePage() {
                         </div>
                     </div>
 
-                    {/* NFT Grid */}
-                    <div>
-                        <h2 className="text-xl font-bold mb-4">Your Music NFTs</h2>
-                        {fetchError && (
-                            <div className="glass rounded-2xl p-6 text-center border border-red-500/50">
-                                <p className="text-red-500">{fetchError.message}</p>
-                            </div>
-                        )}
-                        {isLoading ? (
-                            <SkeletonGrid count={4} />
-                        ) : tokens.length === 0 ? (
-                            <div className="glass rounded-2xl p-12 text-center">
-                                <p className="text-[var(--muted-foreground)] mb-4">
-                                    You don't have any music NFTs yet
-                                </p>
-                                <a
-                                    href="/upload"
-                                    className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-[hsl(263,70%,50%)] to-[hsl(280,80%,60%)] text-white font-semibold hover-lift"
-                                >
-                                    Upload Your First Track
-                                </a>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {tokens.map((token) => (
-                                    <div key={token.tokenId.toString()} className="animate-fade-in">
-                                        <NFTCard tokenData={token} chainId={chainId} />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="md:col-span-2 space-y-8">
+                            {/* NFT Grid */}
+                            <div>
+                                <h2 className="text-xl font-bold mb-4">Your Music NFTs</h2>
+                                {fetchError && (
+                                    <div className="glass rounded-2xl p-6 text-center border border-red-500/50">
+                                        <p className="text-red-500">{fetchError.message}</p>
                                     </div>
-                                ))}
+                                )}
+                                {isLoading ? (
+                                    <SkeletonGrid count={4} />
+                                ) : tokens.length === 0 ? (
+                                    <div className="glass rounded-2xl p-12 text-center">
+                                        <p className="text-[var(--muted-foreground)] mb-4">
+                                            You don't have any music NFTs yet
+                                        </p>
+                                        <a
+                                            href="/upload"
+                                            className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-[hsl(263,70%,50%)] to-[hsl(280,80%,60%)] text-white font-semibold hover-lift"
+                                        >
+                                            Upload Your First Track
+                                        </a>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {tokens.map((token) => (
+                                            <div key={token.tokenId.toString()} className="animate-fade-in">
+                                                <NFTCard tokenData={token} chainId={chainId} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                        )}
+                        </div>
+
+                        <div className="space-y-8">
+                            <FaucetLink />
+                        </div>
                     </div>
                 </div>
             </main>
