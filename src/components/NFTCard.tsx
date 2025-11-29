@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import NFTActions from './NFTActions';
 import LikeButton from './LikeButton';
+import AddToPlaylistMenu from './AddToPlaylistMenu';
 import { getAudioUrl, getImageUrl, formatTokenId } from '@/lib/nft';
 import type { TokenData } from '@/types/metadata';
 
@@ -12,7 +13,9 @@ interface NFTCardProps {
 
 export default function NFTCard({ tokenData, chainId }: NFTCardProps) {
     const [imageError, setImageError] = useState(false);
-    const { playTrack, togglePlay, currentTrack, isPlaying } = useAudioPlayer();
+    const { currentTrack, isPlaying, playTrack, pauseTrack } = useAudioPlayer();
+    const [showActions, setShowActions] = useState(false);
+    const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
     const { metadata, tokenId } = tokenData;
 
     if (!metadata) {
@@ -75,27 +78,59 @@ export default function NFTCard({ tokenData, chainId }: NFTCardProps) {
                     </div>
                 </div>
             )}
-
-            {/* Content */}
-            <div className="p-4 space-y-4">
-                {/* Title & Artist with Actions */}
-                <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                        <h3 className={`font-bold text-lg truncate ${isCurrentTrack ? 'text-[hsl(280,80%,60%)]' : ''}`}>
-                            {metadata.name}
-                        </h3>
-                        <p className="text-sm text-[var(--muted-foreground)] truncate">
-                            {metadata.artist}
-                        </p>
-                    </div>
-                    <NFTActions
-                        tokenId={tokenId}
-                        contractAddress={tokenData.owner}
-                        chainId={chainId}
-                        metadataUrl={tokenData.tokenURI}
-                    />
+            {/* Card Footer */}
+            <div className="p-4 space-y-3">
+                <div>
+                    <h3 className={`font-bold text-lg truncate ${isCurrentTrack ? 'text-[hsl(280,80%,60%)]' : ''}`}>
+                        {metadata?.name || `Token #${tokenId}`}
+                    </h3>
+                    {metadata?.artist && (
+                        <p className="text-sm text-[var(--muted-foreground)] truncate">{metadata.artist}</p>
+                    )}
                 </div>
 
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setShowActions(!showActions)}
+                        className="flex-1 px-4 py-2 rounded-lg border border-[var(--border)] hover:bg-[var(--muted)] transition-colors text-sm font-medium"
+                    >
+                        Actions
+                    </button>
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowPlaylistMenu(!showPlaylistMenu)}
+                            className="px-4 py-2 rounded-lg border border-[var(--border)] hover:bg-[var(--muted)] transition-colors"
+                            title="Add to playlist"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                        </button>
+                        {showPlaylistMenu && (
+                            <>
+                                <div
+                                    className="fixed inset-0 z-40"
+                                    onClick={() => setShowPlaylistMenu(false)}
+                                />
+                                <AddToPlaylistMenu
+                                    track={tokenData}
+                                    onClose={() => setShowPlaylistMenu(false)}
+                                />
+                            </>
+                        )}
+                    </div>
+                </div>
+
+                {showActions && (
+                    <NFTActions
+                        tokenData={tokenData}
+                        chainId={chainId}
+                        onClose={() => setShowActions(false)}
+                    />
+                )}
+            </div>
+            {/* Content */}
+            <div className="p-4 space-y-4">
                 {/* Description */}
                 {metadata.description && (
                     <p className="text-sm text-[var(--muted-foreground)] line-clamp-2">
