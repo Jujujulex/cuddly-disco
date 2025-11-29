@@ -5,8 +5,9 @@ import { useAccount, useReadContract } from 'wagmi';
 import { MUSIC_NFT_ABI, MUSIC_NFT_ADDRESSES, type SupportedChainId } from '@/contracts/MusicNFT';
 import type { TokenData } from '@/types/metadata';
 
-export function useUserNFTs() {
-    const { address, chainId } = useAccount();
+export function useUserNFTs(customAddress?: string) {
+    const { address: connectedAddress, chainId } = useAccount();
+    const address = customAddress || connectedAddress;
     const [tokens, setTokens] = useState<TokenData[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
@@ -18,7 +19,7 @@ export function useUserNFTs() {
             : undefined,
         abi: MUSIC_NFT_ABI,
         functionName: 'balanceOf',
-        args: address ? [address] : undefined,
+        args: address ? [address as `0x${string}`] : undefined,
         query: {
             enabled: !!address && !!chainId && chainId in MUSIC_NFT_ADDRESSES,
         },
