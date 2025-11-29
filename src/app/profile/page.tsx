@@ -11,6 +11,7 @@ import type { TokenData } from '@/types/metadata';
 import FaucetLink from '@/components/FaucetLink';
 import EditProfileModal from '@/components/EditProfileModal';
 import { useUser } from '@/context/UserContext';
+import ShareProfileButton from '@/components/ShareProfileButton';
 
 export default function ProfilePage() {
     const { address, isConnected } = useAccount();
@@ -107,11 +108,6 @@ export default function ProfilePage() {
                                     {address?.slice(0, 6)}...{address?.slice(-4)}
                                 </p>
                             </div>
-                            import ShareProfileButton from '@/components/ShareProfileButton';
-
-                            // ... imports
-
-                            // ... inside ProfilePage component
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setIsEditModalOpen(true)}
