@@ -13,7 +13,7 @@ interface NFTCardProps {
 
 export default function NFTCard({ tokenData, chainId }: NFTCardProps) {
     const [imageError, setImageError] = useState(false);
-    const { currentTrack, isPlaying, playTrack, pauseTrack } = useAudioPlayer();
+    const { currentTrack, isPlaying, playTrack, togglePlay } = useAudioPlayer();
     const [showActions, setShowActions] = useState(false);
     const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
     const { metadata, tokenId } = tokenData;
