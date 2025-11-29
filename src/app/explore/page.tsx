@@ -16,57 +16,41 @@ import type { TokenData } from '@/types/metadata';
 export default function ExplorePage() {
     const { isConnected } = useAccount();
     const { tokens: rawTokens, isLoading: isFetchingTokens } = useUserNFTs();
-    const [tokens, setTokens] = useState<TokenData[]>([]);
-    const [filteredTokens, setFilteredTokens] = useState<TokenData[]>([]);
+    const chainId = useChainId();
+    const { tokens, isLoading, error } = useExploreNFTs();
+    const { likedTokenIds } = useLikes();
+
     const [searchQuery, setSearchQuery] = useState('');
-    const [filterState, setFilterState] = useState<FilterState>({ sortBy: 'newest', genres: [] });
-    const [isLoadingMetadata, setIsLoadingMetadata] = useState(false);
-
-    // Fetch metadata for tokens
-    useEffect(() => {
-        async function loadMetadata() {
-            if (rawTokens.length === 0) {
-                setTokens([]);
-                return;
-            }
-
-            setIsLoadingMetadata(true);
-            try {
-                const tokensWithMetadata = await batchFetchNFTData(rawTokens);
-                setTokens(tokensWithMetadata);
-            } catch (error) {
-                console.error('Error loading metadata:', error);
-                setTokens(rawTokens);
-            } finally {
-                setIsLoadingMetadata(false);
-            }
-        }
-
-        loadMetadata();
-    }, [rawTokens]);
+    const [filterState, setFilterState] = useState<FilterState>({
+        sortBy: 'newest',
+        genres: [],
+        showLikedOnly: false,
+    });
 
     // Filter and sort tokens
-    useEffect(() => {
+    const filteredTokens = useMemo(() => {
         let result = [...tokens];
 
         // 1. Search
-        if (searchQuery.trim()) {
+        if (searchQuery) {
             const query = searchQuery.toLowerCase();
-            result = result.filter((token) => {
-                const title = token.metadata?.name?.toLowerCase() || '';
-                const artist = token.metadata?.artist?.toLowerCase() || '';
-                return title.includes(query) || artist.includes(query);
-            });
+            result = result.filter(token =>
+                token.metadata?.name?.toLowerCase().includes(query) ||
+                token.metadata?.description?.toLowerCase().includes(query)
+            );
         }
 
-        // 2. Filter by Genre
+        // 2. Genre Filter
         result = filterByGenres(result, filterState.genres);
 
-        // 3. Sort
+        // 3. Liked Filter
+        result = filterByLiked(result, likedTokenIds, filterState.showLikedOnly);
+
+        // 4. Sort
         result = sortTokens(result, filterState.sortBy);
 
-        setFilteredTokens(result);
-    }, [tokens, searchQuery, filterState]);
+        return result;
+    }, [tokens, searchQuery, filterState, likedTokenIds]);
 
     const handleSearch = useCallback((query: string) => {
         setSearchQuery(query);
