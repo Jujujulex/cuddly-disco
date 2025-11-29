@@ -12,12 +12,16 @@ import FaucetLink from '@/components/FaucetLink';
 import EditProfileModal from '@/components/EditProfileModal';
 import { useUser } from '@/context/UserContext';
 import ShareProfileButton from '@/components/ShareProfileButton';
+import { usePlaylists } from '@/context/PlaylistContext';
+import CreatePlaylistModal from '@/components/CreatePlaylistModal';
 
 export default function ProfilePage() {
     const { address, isConnected } = useAccount();
     const { tokens: rawTokens, isLoading: isFetchingTokens, error: fetchError } = useUserNFTs(address);
     const { profile } = useUser();
+    const { playlists } = usePlaylists();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isCreatePlaylistOpen, setIsCreatePlaylistOpen] = useState(false);
     const chainId = 11155111; // Default to Sepolia for now
     const [tokens, setTokens] = useState<TokenData[]>([]);
     const [isLoadingMetadata, setIsLoadingMetadata] = useState(false);
@@ -136,6 +140,60 @@ export default function ProfilePage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div className="md:col-span-2 space-y-8">
+                            {/* Playlists Section */}
+                            <div>
+                                <div className="flex items-center justify-between mb-4">
+                                    <h2 className="text-xl font-bold">My Playlists</h2>
+                                    <button
+                                        onClick={() => setIsCreatePlaylistOpen(true)}
+                                        className="px-4 py-2 rounded-lg bg-gradient-to-r from-[hsl(263,70%,50%)] to-[hsl(280,80%,60%)] text-white font-semibold hover-lift flex items-center gap-2"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        New Playlist
+                                    </button>
+                                </div>
+                                {playlists.length === 0 ? (
+                                    <div className="glass rounded-2xl p-8 text-center">
+                                        <p className="text-[var(--muted-foreground)]">
+                                            No playlists yet. Create one to organize your favorite tracks!
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {playlists.map((playlist) => (
+                                            <a
+                                                key={playlist.id}
+                                                href={`/playlist/${playlist.id}`}
+                                                className="glass rounded-xl p-4 hover-lift transition-all group"
+                                            >
+                                                <div className="flex items-start gap-3">
+                                                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[hsl(263,70%,50%)] to-[hsl(280,80%,60%)] flex items-center justify-center flex-shrink-0">
+                                                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                                        </svg>
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <h3 className="font-bold truncate group-hover:text-[hsl(280,80%,60%)] transition-colors">
+                                                            {playlist.name}
+                                                        </h3>
+                                                        {playlist.description && (
+                                                            <p className="text-sm text-[var(--muted-foreground)] truncate">
+                                                                {playlist.description}
+                                                            </p>
+                                                        )}
+                                                        <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                                                            {playlist.tracks.length} track{playlist.tracks.length !== 1 ? 's' : ''}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
                             {/* NFT Grid */}
                             <div>
                                 <h2 className="text-xl font-bold mb-4">Your Music NFTs</h2>
@@ -180,6 +238,10 @@ export default function ProfilePage() {
             <EditProfileModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
+            />
+            <CreatePlaylistModal
+                isOpen={isCreatePlaylistOpen}
+                onClose={() => setIsCreatePlaylistOpen(false)}
             />
         </div>
     );
