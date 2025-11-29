@@ -1,3 +1,4 @@
+```typescript
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -6,6 +7,7 @@ import ContextProvider from "@/context";
 import { ToastProvider } from "@/context/ToastContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AudioProvider } from "@/context/AudioContext";
+import { PlaylistProvider } from "@/context/PlaylistContext";
 import InstallPrompt from "@/components/InstallPrompt";
 import PersistentPlayer from "@/components/PersistentPlayer";
 
@@ -46,21 +48,24 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${ geistSans.variable } ${ geistMono.variable } antialiased`}
       >
         <ErrorBoundary>
           <ContextProvider cookies={cookies}>
-            <ToastProvider>
-              <AudioProvider>
-                {children}
-                <PersistentPlayer />
-                <NetworkSwitcher />
-                <InstallPrompt />
-              </AudioProvider>
-            </ToastProvider>
+                <AudioProvider>
+                    <UserProvider>
+                        <PlaylistProvider>
+                            <NetworkSwitcher />
+                            {children}
+                            <PersistentPlayer />
+                            <InstallPrompt />
+                        </PlaylistProvider>
+                    </UserProvider>
+                </AudioProvider>
           </ContextProvider>
         </ErrorBoundary>
       </body>
     </html>
   );
 }
+```
