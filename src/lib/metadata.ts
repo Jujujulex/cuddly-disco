@@ -1,137 +1,80 @@
-import type { NFTMetadata, MetadataValidationResult, MetadataValidationError } from '@/types/metadata';
+import type { Metadata } from 'next'
 
-/**
- * Fetch metadata from IPFS
- */
-export async function fetchMetadataFromIPFS(ipfsHash: string): Promise<NFTMetadata | null> {
-    try {
-        const gatewayUrl = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
-        const response = await fetch(gatewayUrl);
-
-        if (!response.ok) {
-            throw new Error(`Failed to fetch metadata: ${response.statusText}`);
-        }
-
-        const metadata = await response.json();
-        return metadata as NFTMetadata;
-    } catch (error) {
-        console.error('Error fetching metadata from IPFS:', error);
-        return null;
-    }
+interface GenerateMetadataParams {
+    title: string
+    description: string
+    image?: string
+    url?: string
 }
 
-/**
- * Fetch metadata from token URI (handles both IPFS and HTTP)
- */
-export async function fetchMetadataFromURI(tokenURI: string): Promise<NFTMetadata | null> {
-    try {
-        // Handle IPFS URIs
-        if (tokenURI.startsWith('ipfs://')) {
-            const ipfsHash = tokenURI.replace('ipfs://', '');
-            return await fetchMetadataFromIPFS(ipfsHash);
-        }
-
-        // Handle HTTP/HTTPS URIs
-        if (tokenURI.startsWith('http://') || tokenURI.startsWith('https://')) {
-            const response = await fetch(tokenURI);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch metadata: ${response.statusText}`);
-            }
-            return await response.json() as NFTMetadata;
-        }
-
-        // Handle data URIs
-        if (tokenURI.startsWith('data:')) {
-            const base64Data = tokenURI.split(',')[1];
-            const jsonString = atob(base64Data);
-            return JSON.parse(jsonString) as NFTMetadata;
-        }
-
-        throw new Error('Unsupported URI format');
-    } catch (error) {
-        console.error('Error fetching metadata from URI:', error);
-        return null;
-    }
-}
-
-/**
- * Validate NFT metadata structure
- */
-export function validateMetadata(metadata: unknown): MetadataValidationResult {
-    const errors: MetadataValidationError[] = [];
-
-    if (!metadata || typeof metadata !== 'object') {
-        return {
-            isValid: false,
-            errors: [{ field: 'metadata', message: 'Metadata must be an object' }],
-        };
-    }
-
-    const data = metadata as Partial<NFTMetadata>;
-
-    // Required fields
-    if (!data.name || typeof data.name !== 'string') {
-        errors.push({ field: 'name', message: 'Name is required and must be a string' });
-    }
-
-    if (!data.description || typeof data.description !== 'string') {
-        errors.push({ field: 'description', message: 'Description is required and must be a string' });
-    }
-
-    if (!data.image || typeof data.image !== 'string') {
-        errors.push({ field: 'image', message: 'Image is required and must be a string' });
-    }
-
-    // Music-specific fields
-    if (!data.artist || typeof data.artist !== 'string') {
-        errors.push({ field: 'artist', message: 'Artist is required and must be a string' });
-    }
-
-    if (!data.audio || typeof data.audio !== 'string') {
-        errors.push({ field: 'audio', message: 'Audio is required and must be a string' });
-    }
-
-    // Validate attributes if present
-    if (data.attributes) {
-        if (!Array.isArray(data.attributes)) {
-            errors.push({ field: 'attributes', message: 'Attributes must be an array' });
-        } else {
-            data.attributes.forEach((attr, index) => {
-                if (!attr.trait_type || typeof attr.trait_type !== 'string') {
-                    errors.push({
-                        field: `attributes[${index}].trait_type`,
-                        message: 'Attribute trait_type is required and must be a string',
-                    });
-                }
-                if (attr.value === undefined) {
-                    errors.push({
-                        field: `attributes[${index}].value`,
-                        message: 'Attribute value is required',
-                    });
-                }
-            });
-        }
-    }
-
+export function generateMetadata({
+    title,
+    description,
+    image = '/og-image.png',
+    url = 'https://cuddly-disco.vercel.app',
+}: GenerateMetadataParams): Metadata {
     return {
-        isValid: errors.length === 0,
-        errors,
-    };
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            url,
+            siteName: 'Cuddly Disco',
+            images: [
+                {
+                    url: image,
+                    width: 1200,
+                    height: 630,
+                    alt: title,
+                },
+            ],
+            locale: 'en_US',
+            type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+            images: [image],
+            creator: '@cuddlydisco',
+        },
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                'max-video-preview': -1,
+                'max-image-preview': 'large',
+                'max-snippet': -1,
+            },
+        },
+    }
 }
 
-/**
- * Convert IPFS hash to gateway URL
- */
-export function ipfsHashToUrl(ipfsHash: string): string {
-    // Remove ipfs:// prefix if present
-    const hash = ipfsHash.replace('ipfs://', '');
-    return `https://gateway.pinata.cloud/ipfs/${hash}`;
+export function generateNFTMetadata(
+    tokenId: string,
+    name: string,
+    artist: string,
+    imageUrl?: string
+): Metadata {
+    return generateMetadata({
+        title: `${name} by ${artist} | Cuddly Disco`,
+        description: `Listen to ${name} by ${artist} on Cuddly Disco - The premier music NFT platform`,
+        image: imageUrl || '/og-image.png',
+        url: `https://cuddly-disco.vercel.app/nft/${tokenId}`,
+    })
 }
 
-/**
- * Batch fetch metadata for multiple token URIs
- */
-export async function batchFetchMetadata(tokenURIs: string[]): Promise<(NFTMetadata | null)[]> {
-    const promises = tokenURIs.map(uri => fetchMetadataFromURI(uri));
-    return await Promise.all(promises);
+export function generatePlaylistMetadata(
+    playlistId: string,
+    name: string,
+    trackCount: number
+): Metadata {
+    return generateMetadata({
+        title: `${name} | Cuddly Disco Playlist`,
+        description: `${name} - A playlist with ${trackCount} track${trackCount !== 1 ? 's' : ''} on Cuddly Disco`,
+        url: `https://cuddly-disco.vercel.app/playlist/${playlistId}`,
+    })
 }
