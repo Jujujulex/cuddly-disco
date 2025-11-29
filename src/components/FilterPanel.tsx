@@ -28,16 +28,31 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
         onFilterChange(newFilters);
     };
 
-    const handleGenreToggle = (genre: string) => {
+    const handleSortChange = (value: 'newest' | 'oldest' | 'name') => {
+        handleFilterChange('sortBy', value);
+    };
 
-        setSelectedGenres(newGenres);
-        onFilterChange({ sortBy, genres: newGenres });
+    const handleGenreToggle = (genre: string) => {
+        const currentGenres = filters.genres;
+        const newGenres = currentGenres.includes(genre)
+            ? currentGenres.filter(g => g !== genre)
+            : [...currentGenres, genre];
+
+        handleFilterChange('genres', newGenres);
+    };
+
+    const handleShowLikedOnlyToggle = (checked: boolean) => {
+        handleFilterChange('showLikedOnly', checked);
     };
 
     const handleClearAll = () => {
-        setSortBy('newest');
-        setSelectedGenres([]);
-        onFilterChange({ sortBy: 'newest', genres: [] });
+        const clearedFilters: FilterState = {
+            sortBy: 'newest',
+            genres: [],
+            showLikedOnly: false,
+        };
+        setFilters(clearedFilters);
+        onFilterChange(clearedFilters);
     };
 
     return (
@@ -57,7 +72,7 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
             <div className={`glass rounded-2xl p-6 space-y-6 ${isOpen ? 'block' : 'hidden md:block'}`}>
                 <div className="flex items-center justify-between">
                     <h3 className="font-bold text-lg">Filters</h3>
-                    {(selectedGenres.length > 0 || sortBy !== 'newest') && (
+                    {(filters.genres.length > 0 || filters.sortBy !== 'newest' || filters.showLikedOnly) && (
                         <button
                             onClick={handleClearAll}
                             className="text-sm text-[hsl(280,80%,60%)] hover:underline"
@@ -67,7 +82,7 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
                     )}
                 </div>
 
-                {/* Sort By */}
+                {/* Sort Filter */}
                 <div>
                     <h4 className="font-semibold mb-3">Sort By</h4>
                     <div className="space-y-2">
@@ -76,16 +91,26 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
                             { value: 'oldest', label: 'Oldest First' },
                             { value: 'name', label: 'Name (A-Z)' },
                         ].map((option) => (
-                            <label key={option.value} className="flex items-center gap-2 cursor-pointer">
+                            <label key={option.value} className="flex items-center gap-2 cursor-pointer group">
                                 <input
                                     type="radio"
                                     name="sort"
-                                    value={option.value}
-                                    checked={sortBy === option.value}
+                                    className="hidden"
+                                    checked={filters.sortBy === option.value}
                                     onChange={() => handleSortChange(option.value as any)}
-                                    className="w-4 h-4 accent-[hsl(280,80%,60%)]"
                                 />
-                                <span className="text-sm">{option.label}</span>
+                                <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${filters.sortBy === option.value
+                                    ? 'border-[var(--foreground)]'
+                                    : 'border-[var(--muted-foreground)] group-hover:border-[var(--foreground)]'
+                                    }`}>
+                                    {filters.sortBy === option.value && (
+                                        <div className="w-2 h-2 rounded-full bg-[var(--foreground)]" />
+                                    )}
+                                </div>
+                                <span className={`text-sm transition-colors ${filters.sortBy === option.value ? 'text-[var(--foreground)] font-medium' : 'text-[var(--muted-foreground)] group-hover:text-[var(--foreground)]'
+                                    }`}>
+                                    {option.label}
+                                </span>
                             </label>
                         ))}
                     </div>
@@ -99,8 +124,8 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
                             <input
                                 type="checkbox"
                                 className="sr-only peer"
-                                checked={showLikedOnly}
-                                onChange={(e) => handleShowLikedOnlyToggle(e.target.checked)}
+                                checked={filters.showLikedOnly}
+                                onChange={(e) => handleFilterChange('showLikedOnly', e.target.checked)}
                             />
                             <div className="w-10 h-6 bg-[var(--muted)] rounded-full peer peer-checked:bg-red-500 transition-colors"></div>
                             <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
