@@ -1,3 +1,4 @@
+```javascript
 'use client'
 
 import { useEffect, useState } from 'react';
@@ -8,11 +9,16 @@ import { SkeletonGrid } from '@/components/Skeleton';
 import { useUserNFTs } from '@/hooks/useUserNFTs';
 import { batchFetchNFTData } from '@/lib/nft';
 import type { TokenData } from '@/types/metadata';
+import FaucetLink from '@/components/FaucetLink';
+import EditProfileModal from '@/components/EditProfileModal';
+import { useUser } from '@/context/UserContext';
 
 export default function ProfilePage() {
     const { address, isConnected } = useAccount();
-    const chainId = useChainId();
-    const { tokens: rawTokens, isLoading: isFetchingTokens, error: fetchError } = useUserNFTs();
+    const { tokens: rawTokens, isLoading: isFetchingTokens, error: fetchError } = useUserNFTs(address);
+    const { profile } = useUser();
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const chainId = 11155111; // Default to Sepolia for now
     const [tokens, setTokens] = useState<TokenData[]>([]);
     const [isLoadingMetadata, setIsLoadingMetadata] = useState(false);
 
