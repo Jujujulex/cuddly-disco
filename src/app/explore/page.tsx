@@ -60,7 +60,10 @@ export default function ExplorePage() {
     }, []);
 
     const trendingTokens = useMemo(() => getTrendingTokens(tokens), [tokens]);
-    const isLoading = isFetchingTokens || isLoadingMetadata;
+    const handleClearAll = () => {
+        setSearchQuery('');
+        setFilterState({ sortBy: 'newest', genres: [], showLikedOnly: false });
+    };
 
     return (
         <div className="relative min-h-screen overflow-hidden bg-[var(--background)]">
@@ -136,8 +139,8 @@ export default function ExplorePage() {
                                 </p>
                                 <ConnectButton />
                             </div>
-                        ) : displayLoading ? (
-                            <SkeletonGrid />
+                        ) : isLoading ? (
+                            <SkeletonGrid count={8} />
                         ) : error ? (
                             <div className="glass rounded-2xl p-12 text-center">
                                 <h3 className="text-xl font-bold mb-2">Error Loading NFTs</h3>
@@ -152,28 +155,24 @@ export default function ExplorePage() {
                                     Try adjusting your filters or search query
                                 </p>
                                 <button
-                                    onClick={() => {
-                                        const handleClearAll = () => {
-        setSearchQuery('');
-        setFilterState({ sortBy: 'newest', genres: [], showLikedOnly: false });
-    };
-                                    }}
+                                    onClick={handleClearAll}
                                     className="text-[hsl(280,80%,60%)] hover:underline"
                                 >
                                     Clear all filters
                                 </button>
                             </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                        {filteredTokens.map((token) => (
-                            <div key={token.tokenId.toString()} className="animate-fade-in">
-                                <NFTCard tokenData={token} />
+                        ) : (
+                            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {filteredTokens.map((token) => (
+                                    <div key={token.tokenId.toString()} className="animate-fade-in">
+                                        <NFTCard tokenData={token} chainId={chainId} />
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
                         )}
                     </div>
                 </div>
-            </main >
-        </div >
+            </main>
+        </div>
     );
 }
