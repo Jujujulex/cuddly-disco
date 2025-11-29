@@ -18,43 +18,43 @@ describe('NFT Utility Functions', () => {
 
     describe('getImageUrl', () => {
         it('should return image URL from metadata', () => {
-            const metadata: NFTMetadata = {
+            const metadata: Partial<NFTMetadata> = {
                 name: 'Test',
                 image: 'ipfs://QmTest123',
             }
-            expect(getImageUrl(metadata)).toBe('ipfs://QmTest123')
+            expect(getImageUrl(metadata as NFTMetadata)).toBe('ipfs://QmTest123')
         })
 
         it('should return undefined for missing image', () => {
-            const metadata: NFTMetadata = {
+            const metadata: Partial<NFTMetadata> = {
                 name: 'Test',
             }
-            expect(getImageUrl(metadata)).toBeUndefined()
+            expect(getImageUrl(metadata as NFTMetadata)).toBeUndefined()
         })
 
-        it('should handle null metadata', () => {
-            expect(getImageUrl(null)).toBeUndefined()
+        it('should handle undefined metadata', () => {
+            expect(getImageUrl(undefined)).toBeUndefined()
         })
     })
 
     describe('getAudioUrl', () => {
         it('should return audio URL from metadata', () => {
-            const metadata: NFTMetadata = {
+            const metadata: Partial<NFTMetadata> = {
                 name: 'Test',
                 audio: 'ipfs://QmAudio123',
             }
-            expect(getAudioUrl(metadata)).toBe('ipfs://QmAudio123')
+            expect(getAudioUrl(metadata as NFTMetadata)).toBe('ipfs://QmAudio123')
         })
 
         it('should return undefined for missing audio', () => {
-            const metadata: NFTMetadata = {
+            const metadata: Partial<NFTMetadata> = {
                 name: 'Test',
             }
-            expect(getAudioUrl(metadata)).toBeUndefined()
+            expect(getAudioUrl(metadata as NFTMetadata)).toBeUndefined()
         })
 
-        it('should handle null metadata', () => {
-            expect(getAudioUrl(null)).toBeUndefined()
+        it('should handle undefined metadata', () => {
+            expect(getAudioUrl(undefined)).toBeUndefined()
         })
     })
 
@@ -74,9 +74,9 @@ describe('NFT Utility Functions', () => {
             expect(url).toContain('2')
         })
 
-        it('should handle undefined metadata URL', () => {
-            const url = getExplorerUrl('0x789', BigInt(3), 11155111, undefined)
-            expect(url).toContain('sepolia.etherscan.io')
+        it('should handle default chain ID', () => {
+            const url = getExplorerUrl('0x789', BigInt(3))
+            expect(url).toContain('etherscan.io')
             expect(url).toContain('0x789')
         })
     })

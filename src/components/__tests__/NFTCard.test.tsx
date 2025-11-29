@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import NFTCard from '@/components/NFTCard'
 import type { TokenData } from '@/types/metadata'
 import { AudioProvider } from '@/context/AudioContext'
@@ -41,28 +41,28 @@ const Wrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('NFTCard', () => {
     it('should render track name and artist', () => {
-        render(<NFTCard tokenData={mockTokenData} chainId={11155111} />, {
+        const { getByText } = render(<NFTCard tokenData={mockTokenData} chainId={11155111} />, {
             wrapper: Wrapper,
         })
 
-        expect(screen.getByText('Test Track')).toBeInTheDocument()
-        expect(screen.getByText('Test Artist')).toBeInTheDocument()
+        expect(getByText('Test Track')).toBeInTheDocument()
+        expect(getByText('Test Artist')).toBeInTheDocument()
     })
 
     it('should render description if provided', () => {
-        render(<NFTCard tokenData={mockTokenData} chainId={11155111} />, {
+        const { getByText } = render(<NFTCard tokenData={mockTokenData} chainId={11155111} />, {
             wrapper: Wrapper,
         })
 
-        expect(screen.getByText('A test music NFT')).toBeInTheDocument()
+        expect(getByText('A test music NFT')).toBeInTheDocument()
     })
 
     it('should render genre badge', () => {
-        render(<NFTCard tokenData={mockTokenData} chainId={11155111} />, {
+        const { getByText } = render(<NFTCard tokenData={mockTokenData} chainId={11155111} />, {
             wrapper: Wrapper,
         })
 
-        expect(screen.getByText('Electronic')).toBeInTheDocument()
+        expect(getByText('Electronic')).toBeInTheDocument()
     })
 
     it('should show loading state when metadata is missing', () => {
@@ -70,21 +70,21 @@ describe('NFTCard', () => {
             tokenId: BigInt(1),
             tokenURI: 'ipfs://test',
             owner: '0x123',
-            metadata: null,
+            metadata: undefined,
         }
 
-        render(<NFTCard tokenData={tokenWithoutMetadata} chainId={11155111} />, {
+        const { getByText } = render(<NFTCard tokenData={tokenWithoutMetadata} chainId={11155111} />, {
             wrapper: Wrapper,
         })
 
-        expect(screen.getByText(/Loading metadata/i)).toBeInTheDocument()
+        expect(getByText(/Loading metadata/i)).toBeInTheDocument()
     })
 
     it('should render Actions button', () => {
-        render(<NFTCard tokenData={mockTokenData} chainId={11155111} />, {
+        const { getByText } = render(<NFTCard tokenData={mockTokenData} chainId={11155111} />, {
             wrapper: Wrapper,
         })
 
-        expect(screen.getByText('Actions')).toBeInTheDocument()
+        expect(getByText('Actions')).toBeInTheDocument()
     })
 })
