@@ -107,6 +107,11 @@ export default function ProfilePage() {
                                     {address?.slice(0, 6)}...{address?.slice(-4)}
                                 </p>
                             </div>
+                            import ShareProfileButton from '@/components/ShareProfileButton';
+
+                            // ... imports
+
+                            // ... inside ProfilePage component
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setIsEditModalOpen(true)}
@@ -114,6 +119,7 @@ export default function ProfilePage() {
                                 >
                                     Edit Profile
                                 </button>
+                                <ShareProfileButton address={address || ''} name={profile?.name} />
                             </div>
                         </div>
                         <div className="grid grid-cols-3 gap-4 pt-4 border-t border-[var(--border)]">
