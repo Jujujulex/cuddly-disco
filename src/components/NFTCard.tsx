@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import NFTActions from './NFTActions';
+import LikeButton from './LikeButton';
 import { getAudioUrl, getImageUrl, formatTokenId } from '@/lib/nft';
 import type { TokenData } from '@/types/metadata';
 
@@ -51,6 +52,9 @@ export default function NFTCard({ tokenData, chainId }: NFTCardProps) {
                     />
                     <div className="absolute top-2 right-2 px-2 py-1 rounded-full glass text-xs font-mono z-10">
                         {formatTokenId(tokenId)}
+                    </div>
+                    <div className="absolute top-2 left-2 z-10">
+                        <LikeButton tokenId={tokenId} className="bg-black/20 backdrop-blur-md text-white hover:bg-white/20" />
                     </div>
 
                     {/* Play Overlay */}
