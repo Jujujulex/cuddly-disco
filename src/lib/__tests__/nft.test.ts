@@ -60,14 +60,14 @@ describe('NFT Utility Functions', () => {
 
     describe('getExplorerUrl', () => {
         it('should return Sepolia Etherscan URL for Sepolia chain', () => {
-            const url = getExplorerUrl('0x123', BigInt(1), 11155111)
+            const url = getExplorerUrl(11155111, '0x123', BigInt(1))
             expect(url).toContain('sepolia.etherscan.io')
             expect(url).toContain('0x123')
             expect(url).toContain('1')
         })
 
         it('should return mainnet Etherscan URL for mainnet chain', () => {
-            const url = getExplorerUrl('0x456', BigInt(2), 1)
+            const url = getExplorerUrl(1, '0x456', BigInt(2))
             expect(url).toContain('etherscan.io')
             expect(url).not.toContain('sepolia')
             expect(url).toContain('0x456')
@@ -75,7 +75,7 @@ describe('NFT Utility Functions', () => {
         })
 
         it('should handle default chain ID', () => {
-            const url = getExplorerUrl('0x789', BigInt(3))
+            const url = getExplorerUrl(999, '0x789', BigInt(3))
             expect(url).toContain('etherscan.io')
             expect(url).toContain('0x789')
         })
