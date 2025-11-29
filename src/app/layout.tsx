@@ -6,9 +6,11 @@ import ContextProvider from "@/context";
 import { ToastProvider } from "@/context/ToastContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AudioProvider } from "@/context/AudioContext";
+import { UserProvider } from "@/context/UserContext";
 import { PlaylistProvider } from "@/context/PlaylistContext";
 import InstallPrompt from "@/components/InstallPrompt";
 import PersistentPlayer from "@/components/PersistentPlayer";
+import NetworkSwitcher from "@/components/NetworkSwitcher";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
