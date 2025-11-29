@@ -9,24 +9,26 @@ interface FilterPanelProps {
 export interface FilterState {
     sortBy: 'newest' | 'oldest' | 'name';
     genres: string[];
+    showLikedOnly: boolean;
 }
 
 export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'name'>('newest');
-    const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+    const [filters, setFilters] = useState<FilterState>({
+        sortBy: 'newest',
+        genres: [],
+        showLikedOnly: false,
+    });
 
     const genres = ['Electronic', 'Hip Hop', 'Rock', 'Pop', 'Jazz', 'Classical', 'Other'];
 
-    const handleSortChange = (value: 'newest' | 'oldest' | 'name') => {
-        setSortBy(value);
-        onFilterChange({ sortBy: value, genres: selectedGenres });
+    const handleFilterChange = (key: keyof FilterState, value: any) => {
+        const newFilters = { ...filters, [key]: value };
+        setFilters(newFilters);
+        onFilterChange(newFilters);
     };
 
     const handleGenreToggle = (genre: string) => {
-        const newGenres = selectedGenres.includes(genre)
-            ? selectedGenres.filter(g => g !== genre)
-            : [...selectedGenres, genre];
 
         setSelectedGenres(newGenres);
         onFilterChange({ sortBy, genres: newGenres });
@@ -87,6 +89,26 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
                             </label>
                         ))}
                     </div>
+                </div>
+
+                {/* Liked Filter */}
+                <div className="space-y-3 pb-6 border-b border-[var(--border)]">
+                    <h3 className="font-bold">Favorites</h3>
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className="relative">
+                            <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={showLikedOnly}
+                                onChange={(e) => handleShowLikedOnlyToggle(e.target.checked)}
+                            />
+                            <div className="w-10 h-6 bg-[var(--muted)] rounded-full peer peer-checked:bg-red-500 transition-colors"></div>
+                            <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
+                        </div>
+                        <span className="text-sm group-hover:text-[var(--foreground)] transition-colors">
+                            Show Liked Only
+                        </span>
+                    </label>
                 </div>
 
                 {/* Genre Filter */}
