@@ -39,3 +39,8 @@ export function getTrendingTokens(tokens: TokenData[], count: number = 6): Token
         .sort((a, b) => Number(b.tokenId) - Number(a.tokenId))
         .slice(0, count);
 }
+
+export function filterByLiked(tokens: TokenData[], likedTokenIds: string[], showLikedOnly: boolean): TokenData[] {
+    if (!showLikedOnly) return tokens;
+    return tokens.filter(token => likedTokenIds.includes(token.tokenId.toString()));
+}
