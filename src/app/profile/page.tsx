@@ -96,7 +96,7 @@ export default function ProfilePage() {
                                 {address?.slice(2, 4).toUpperCase()}
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold gradient-text">My Collection</h1>
+                                <h1 className="text-2xl font-bold gradient-text">{profile?.name || 'My Collection'}</h1>
                                 <p className="text-sm text-[var(--muted-foreground)] font-mono">
                                     {address?.slice(0, 6)}...{address?.slice(-4)}
                                 </p>
@@ -115,6 +115,14 @@ export default function ProfilePage() {
                                 <div className="text-2xl font-bold gradient-text">0</div>
                                 <div className="text-sm text-[var(--muted-foreground)]">Collected</div>
                             </div>
+                        </div>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setIsEditModalOpen(true)}
+                                className="px-4 py-2 rounded-lg border border-[var(--border)] hover:bg-[var(--muted)] transition-colors"
+                            >
+                                Edit Profile
+                            </button>
                         </div>
                     </div>
 
