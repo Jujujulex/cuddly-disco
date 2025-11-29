@@ -90,14 +90,18 @@ export const MUSIC_NFT_ABI = [
     },
 ] as const;
 
+import deploymentInfo from './deployment-info.json';
+
+// ... ABI definition ...
+
 // Contract addresses for different networks
 export const MUSIC_NFT_ADDRESSES = {
     // Mainnet
-    1: '0x0000000000000000000000000000000000000000', // Replace with actual mainnet address
+    1: '0x0000000000000000000000000000000000000000',
     // Arbitrum
-    42161: '0x0000000000000000000000000000000000000000', // Replace with actual arbitrum address
+    42161: '0x0000000000000000000000000000000000000000',
     // Sepolia (testnet)
-    11155111: '0x0000000000000000000000000000000000000000', // Replace with actual sepolia address
+    11155111: deploymentInfo.address || '0x0000000000000000000000000000000000000000',
 } as const;
 
 export type SupportedChainId = keyof typeof MUSIC_NFT_ADDRESSES;
